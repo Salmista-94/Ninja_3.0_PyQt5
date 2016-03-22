@@ -1,0 +1,28 @@
+# ninja_ide specific
+ninja_ide/addins/plugins/*
+NINJA_IDE.egg-info/*
+build/*
+dist/*
+
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.py[cod]
+*~
+.directory
+
+
+# Developer
+.coverage
+.project
+
+
+# Misc
+*.swp
+tests/tools/build/
+_trial_temp
