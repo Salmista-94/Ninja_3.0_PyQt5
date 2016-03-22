@@ -1,5 +1,9 @@
 ![Travis report](https://travis-ci.org/ninja-ide/ninja-ide.svg?branch=master "Travis-C.I. Testing report")
 
+## Unofficial Repository
+- Alfa 2
+
+
 # Ninja-ide Is Not Just Another IDE.
 **Ninja-IDE** is a cross-platform integrated development environment (IDE) that allows developers to create applications for any purpose making the task of writing software easier and more enjoyable. It's also a secret ninja agency but this doesn't matter right now.
 ![Ninja-IDE logo](http://ninjaide.webfactional.com/static/common/img/ninja-big.png)
