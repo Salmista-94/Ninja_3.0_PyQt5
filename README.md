@@ -1,7 +1,8 @@
 ![Travis report](https://travis-ci.org/ninja-ide/ninja-ide.svg?branch=master "Travis-C.I. Testing report")
 
-## Unofficial Repository: purpose port to PyQt5
-- Alfa 2
+# Unofficial Repository:
+##       purpose port to PyQt5 - Alfa 2
+
 
 # Based on https://github.com/ninja-ide/ninja-ide
 
