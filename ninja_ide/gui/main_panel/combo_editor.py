@@ -36,6 +36,7 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QSpacerItem
 from PyQt5.QtCore import QSize
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
@@ -432,10 +433,12 @@ class ActionBar(QFrame):
         hbox.addWidget(self.code_navigator)
 
         self._pos_text = "Line: %d, Col: %d"
-        self.lbl_position = QLabel(self._pos_text % (0, 0))
-        self.lbl_position.setObjectName("position")
-        self.lbl_position.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox.addWidget(self.lbl_position)
+        # self.lbl_position = QLabel(self._pos_text % (0, 0))
+        # self.lbl_position.setObjectName("position")
+        # self.lbl_position.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # hbox.addWidget(self.lbl_position)
+        # hbox.addSpacerItem(QSpacerItem(10,10, QSizePolicy.Expanding))
+        hbox.addSpacing(100)
 
         self.btn_close = QPushButton(
             self.style().standardIcon(QStyle.SP_DialogCloseButton), '')
@@ -443,7 +446,7 @@ class ActionBar(QFrame):
         if main_combo:
             self.btn_close.setObjectName('navigation_button')
             self.btn_close.setToolTip(translations.TR_CLOSE_FILE)
-            self.btn_close.clicked['bool'].connect(self.about_to_close_file)
+            self.btn_close.clicked['bool'].connect(lambda s: self.about_to_close_file())
         else:
             self.btn_close.setObjectName('close_split')
             self.btn_close.setToolTip(translations.TR_CLOSE_SPLIT)
@@ -456,11 +459,11 @@ class ActionBar(QFrame):
         if event.size().width() < 350:
             self.symbols_combo.hide()
             self.code_navigator.hide()
-            self.lbl_position.hide()
+            # self.lbl_position.hide()
         else:
             self.symbols_combo.show()
             self.code_navigator.show()
-            self.lbl_position.show()
+            # self.lbl_position.show()
 
     def add_item(self, text, neditable):
         """Add a new item to the combo and add the neditable data."""
@@ -507,7 +510,8 @@ class ActionBar(QFrame):
 
     def update_line_col(self, line, col):
         """Update the line and column position."""
-        self.lbl_position.setText(self._pos_text % (line, col))
+        #self.lbl_position.setText(self._pos_text % (line, col))
+        IDE.getInstance().showMessageStatus(self._pos_text % (line, col))
 
     def _context_menu_requested(self, point):
         """Display context menu for the combo file."""
@@ -579,6 +583,7 @@ class ActionBar(QFrame):
             index = self.combo.currentIndex()
         neditable = self.combo.itemData(index)
         if neditable:
+            print("\n\nabout_to_close_file:", self.combo.count(), index, self.combo.currentIndex())
             neditable.nfile.close()
 
     def close_split(self):
@@ -645,6 +650,7 @@ class ComboFiles(QComboBox):
         self.highlighted[int].connect(lambda i: print("highlighted", i))
 
     def showPopup(self):
+        super(ComboFiles, self).showPopup()
         self.showComboSelector.emit()
         
 

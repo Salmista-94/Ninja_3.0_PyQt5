@@ -25,7 +25,11 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QToolBar
 from PyQt5.QtWidgets import QToolTip
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QPlainTextEdit
 from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QPaintDevice
+from PyQt5.QtGui import QStaticText
 from PyQt5.QtWidgets import QStyle
 from PyQt5.QtCore import QSettings
 from PyQt5.QtCore import Qt
@@ -36,6 +40,13 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtNetwork import QLocalServer
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import QByteArray
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QSpacerItem
+from PyQt5.QtWidgets import QSizePolicy
 
 
 from ninja_ide import resources
@@ -103,6 +114,9 @@ class IDE(QMainWindow):
     # On modify add: {connected: True}
     __instance = None
     __created = False
+
+
+    MessageStatusChanged = pyqtSignal(str)
 
     goingDown = pyqtSignal()
     # # ns_preferences_editor_font = pyqtSignal()
@@ -398,6 +412,45 @@ class IDE(QMainWindow):
         self.load_window_geometry()
         self.__project_to_open = 0
 
+        IDE.__instance = self
+
+        wid = QWidget()#adjustSize
+        wid.setContentsMargins(0, 0, 0, 0)
+        box = QHBoxLayout(wid)
+        box.setContentsMargins(0, 0, 0, 0)
+        # l1 = QLabel("Info Here")
+        # l1.setObjectName("Info")
+        # l1.setStyleSheet("background-color: rgb(88, 255, 85);")
+        # box.addWidget(l1)
+        space = QSpacerItem(10,10, QSizePolicy.Expanding)#, QSizePolicy.Maximum)
+        box.addSpacerItem(space)
+        l2 = QLabel("Tab Size: "+str(settings.INDENT))#int(qsettings.value('preferences/editor/indent', 4, type=int))))
+        l2.setObjectName("Det1")
+
+        font = l2.font()
+        font.setPointSize(8)
+        l2.setFont(font)
+        box.addWidget(l2)
+
+        box.addSpacing(50)
+
+        l3 = QLabel("Python")
+        l3.setObjectName("Det2")
+        font.setPointSize(9)
+        l3.setFont(font)
+        box.addWidget(l3)
+
+        box.addSpacing(30)
+
+        status = self.statusBar()
+        status.setMaximumHeight(20)
+        status.addPermanentWidget(wid)
+        # wid.show()
+        # self.__wid = wid
+        status.reformat()
+        status.showMessage("Info Here")
+        status.setStyleSheet("background-color: rgb(85, 85, 85);")
+
         #Editables
         self.__neditables = {}
         #Filesystem
@@ -425,6 +478,8 @@ class IDE(QMainWindow):
             self.toolbar.hide()
         #Notificator
         self.notification = notification.Notification(self)
+
+        self.statusBar().messageChanged[str].connect(self.MessageStatusChanged.emit)
 
         #Plugin Manager
         # CHECK ACTIVATE PLUGINS SETTING
@@ -499,6 +554,7 @@ class IDE(QMainWindow):
         self.register_signals('ide', connections)
         # Central Widget MUST always exists
         self.central = IDE.get_service('central_container')
+        print("self.central:", self.central)
         self.setCentralWidget(self.central)
         # Install Services
         for service_name in self.__IDESERVICES:
@@ -522,7 +578,6 @@ class IDE(QMainWindow):
             self.s_listener.listen("ninja_ide")
             self.s_listener.newConnection.connect(self._process_connection)
 
-        IDE.__instance = self
 
     @classmethod
     def hasCreated(clss):
@@ -693,6 +748,10 @@ class IDE(QMainWindow):
                 current_project = projects[project]
                 break
         return current_project
+
+    def showMessageStatus(self, msg):
+        QTimer.singleShot(1, Qt.PreciseTimer, lambda: self.statusBar().showMessage(msg))
+        # self.statusBar().showMessage(msg)
 
     @classmethod
     def select_current(cls, widget):

@@ -100,7 +100,7 @@ class _MainContainer(QWidget):
     findOcurrences = pyqtSignal(str)
     updateFileMetadata = pyqtSignal()#-----------
     editorKeyPressEvent = pyqtSignal('QEvent*')
-    locateFunction = pyqtSignal(str, str, bool)# [functionName, filePath, isVariable]
+    locateFunction = pyqtSignal(str, str, bool)
     updateLocator = pyqtSignal(str)
     beforeFileSaved = pyqtSignal(str)
     fileSaved = pyqtSignal(str)
@@ -683,8 +683,11 @@ class _MainContainer(QWidget):
             event.ignore()
 
     def dropEvent(self, event):
-        file_path = event.mimeData().urls()[0].toLocalFile()
-        self.open_file(file_path)
+        # file_path = event.mimeData().urls()[0].toLocalFile()
+        # paths = [item.toLocalFile() for item in event.mimeData().urls()]
+        self.open_files_fromUrlList(event.mimeData().urls())
+        # print("\n\n dropEvent", paths)
+        # self.open_file(file_path)
 
     def setFocus(self):
         widget = self.get_current_widget()
@@ -703,10 +706,11 @@ class _MainContainer(QWidget):
 
     def add_editor(self, fileName=None, ignore_checkers=False):
         print("filename::", fileName)
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         editable = ninjaide.get_or_create_editable(fileName)
         if editable.editor:
             self.current_widget.set_current(editable)
+            print("\n\nreturn")
             return self.current_widget.currentWidget()
         else:
             editable.ignore_checkers = ignore_checkers
@@ -812,6 +816,14 @@ class _MainContainer(QWidget):
             QMessageBox.information(self, self.tr("Incorrect File"),
                                     self.tr("The image couldn\'t be open"))
 
+    def open_files_fromList(self, lst):
+        for f in lst:
+            self.open_file(f)
+
+    def open_files_fromUrlList(self, lst):
+        for f in lst:
+            self.open_file(f.toLocalFile())
+
     def open_file(self, filename='', line=-1, col=0, ignore_checkers=False):
         logger.debug("will try to open %s" % filename)
         if not filename:
@@ -821,7 +833,7 @@ class _MainContainer(QWidget):
             else:
                 directory = os.path.expanduser("~")
                 editorWidget = self.get_current_editor()
-                ninjaide = IDE.get_service('ide')
+                ninjaide = IDE.getInstance()
                 if ninjaide:
                     current_project = ninjaide.get_current_project()
                     if current_project is not None:
@@ -840,6 +852,7 @@ class _MainContainer(QWidget):
         if not fileNames:
             return
 
+        print("\n\nopen_file")
         othersFileNames = []
         image_extensions = ('bmp', 'gif', 'jpeg', 'jpg', 'png')
         for filename in fileNames:
@@ -1068,6 +1081,7 @@ class _MainContainer(QWidget):
             startPage.openProject.connect(self.open_project)
             startPage.openPreferences.connect(self.openPreferences.emit)
             startPage.newFile.connect(self.add_editor)
+            startPage.openFiles.connect(self.open_files_fromList)
             self.stack.insertWidget(0, startPage)
             self.stack.setCurrentIndex(0)
 
@@ -1160,6 +1174,7 @@ class _MainContainer(QWidget):
         """Change the tab in the current TabWidget."""
         self.stack.setCurrentWidget(self.splitter)
         self._files_handler.next_item()
+        pass
 
     def change_tab_reverse(self):
         """Change the tab in the current TabWidget backwards."""

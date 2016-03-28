@@ -3,6 +3,9 @@ import QtQuick 2.5
 Rectangle {
     id: root
 
+    width: 400
+    height: 400
+
     radius: 5
     color: "#202123"
     border.width: 1
@@ -46,6 +49,7 @@ Rectangle {
     }
 
     function set_model(model) {
+        print("set_model", model)
         listFiles.currentIndex = 0;
         for(var i = 0; i < model.length; i++) {
             listFiles.model.append(
@@ -80,6 +84,7 @@ Rectangle {
     }
 
     function next_item() {
+        print("next_item\n")
         if (listFiles.visible) {
             for (var i = 0; i < listFiles.model.count; i++) {
                 if (listFiles.currentIndex == (listFiles.count - 1)) {
@@ -168,6 +173,7 @@ Rectangle {
             }
 
             Keys.onDownPressed: {
+                print("Keys.onDownPressed")
                 root.next_item();
             }
             Keys.onUpPressed: {

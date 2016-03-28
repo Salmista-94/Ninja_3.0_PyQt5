@@ -20,6 +20,7 @@ import datetime
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QFileInfo
 from PyQt5.QtQuickWidgets import QQuickWidget
 
 from ninja_ide.gui.ide import IDE
@@ -31,6 +32,7 @@ class StartPage(QWidget):
     openPreferences = pyqtSignal()
     newFile = pyqtSignal(str)
     openProject = pyqtSignal(str)
+    openFiles = pyqtSignal(list)
     def __init__(self, parent=None):
         super(StartPage, self).__init__(parent)
         vbox = QVBoxLayout(self)
@@ -50,12 +52,28 @@ class StartPage(QWidget):
         self.root.markAsFavorite.connect(self._on_click_on_favorite)
         self.root.openPreferences.connect(self.openPreferences.emit)
         self.root.newFile.connect(lambda: self.newFile.emit(translations.TR_NEW_DOCUMENT))#self.test)
+        self.root.openFiles.connect(self.checkFiles)
 
         self.root.set_year(str(datetime.datetime.now().year))
 
     def test(self, c= "-.-"):
         print(c)
         self.newFile.emit(c)
+
+    def checkFiles(self, lst):
+        f = QFileInfo()
+        newLst = []
+        for url in lst:
+            _file = url.toLocalFile()
+            print("FILE::", url, _file)
+            f.setFile(_file)
+            if f.suffix() not in ("tar", "exe", "mp3", "mp4", "flv", "zip", "rar", "iso"):
+                newLst.append(_file)
+
+        if newLst:
+            self.openFiles.emit(newLst)
+
+
 
     def _open_project(self, path):
         projects_explorer = IDE.get_service('projects_explorer')

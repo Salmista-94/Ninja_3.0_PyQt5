@@ -39,6 +39,7 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QMimeData
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTimer
 
 from ninja_ide import resources
 from ninja_ide.core import settings
@@ -200,6 +201,8 @@ class Editor(QsciScintilla):
 
         self.lexer = highlighter.get_lexer(self._neditable.extension())
 
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
         if self.lexer is not None:
             self.setLexer(self.lexer)
 
@@ -255,7 +258,7 @@ class Editor(QsciScintilla):
         self.__actionFindOccurrences = QAction(self.tr("Find Usages"), self)
         self.__actionFindOccurrences.triggered['bool'].connect(lambda s: self._find_occurrences())
 
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         ninjaide.ns_preferences_editor_font.connect(self.set_font)
         ninjaide.ns_preferences_editor_showTabsAndSpaces.connect(self.set_flags)
         ninjaide.ns_preferences_editor_showIndentationGuide.connect(self.set_flags)
@@ -294,6 +297,11 @@ class Editor(QsciScintilla):
             self.markerAdd(line, self._bookmark_marker)
 
         self._neditable.checkersUpdated.connect(self._highlight_checkers)
+
+        self.setReadOnly(False)
+
+        #QTimer.singleShot(5000, lambda: print("\n\neditable.isReadOnly()::", self.isReadOnly()))
+
 
     @property
     def display_name(self):
@@ -645,11 +653,12 @@ class Editor(QsciScintilla):
         """
         print("\n->go_to_line continuando en cuarto lugar", lineno, select)
         if self.lines() >= lineno:
+            #self.ensureLineVisible(lineno)
             self.setCursorPosition(lineno, 0)#ensureLineVisible 
             if select:
                 txt = self.text(lineno)
                 self.setSelection(lineno, len(txt.rstrip()), lineno, 0)
-            self.ensureLineVisible(lineno)
+            QTimer.singleShot(50, self.ensureCursorVisible)
             print("\nLineno", lineno)
 
     def go_to_symbol(self, lineno, sym, select=False):
@@ -668,7 +677,7 @@ class Editor(QsciScintilla):
             self.setCursorPosition(lineno, iniPos)#ensureLineVisible 
             if sym:
                 self.setSelection(lineno, iniPos, lineno, iniPos+len(sym))
-            self.ensureLineVisible(lineno)
+            QTimer.singleShot(50, self.ensureCursorVisible)
             
 #personas = {juan, pablo, matias, pedro}            
 #casa["personas"].puede_hablar_con(personas)

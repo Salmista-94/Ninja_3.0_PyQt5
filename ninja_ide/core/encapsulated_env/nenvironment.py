@@ -22,13 +22,20 @@
 import os
 import sys
 
-##from virtualenv import create_environment
+containEnv = False
+try:
+    from virtualenv import create_environment
+    containEnv = True
+except ImportError:
+    pass
 
-#This is here only for reference purposes
-#def create_environment(home_dir, site_packages=False, clear=False,
+
+# This is here only for reference purposes
+# def create_environment(home_dir, site_packages=False, clear=False,
 #                       unzip_setuptools=False,
 #                       prompt=None, search_dirs=None, never_download=False,
 #                       no_setuptools=False, no_pip=False, symlink=True):
+
 
 from ninja_ide.tools.logger import NinjaLogger
 logger = NinjaLogger('ninja_ide.core.encapsulated_env.nenvironement')
@@ -46,14 +53,29 @@ NINJA_ENV = os.path.join(HOME_NINJA_PATH, NINJA_ENV_NAME)
 NINJA_ENV_BIN = os.path.join(NINJA_ENV, "bin")
 
 if not os.path.isdir(NINJA_ENV):
-    print("se comento la inclusion de 'virtualenv'", NINJA_ENV)
-    #create_environment(NINJA_ENV)
+    #print("se comento la inclusion de 'virtualenv'", NINJA_ENV)
+    if containEnv:
+        create_environment(NINJA_ENV)
+
 if not os.path.isdir(NINJA_ENV_BIN):
     NINJA_ENV_BIN = os.path.join(NINJA_ENV, "Scripts")
 
 
 NINJA_ENV_ACTIVATE = os.path.join(NINJA_ENV_BIN, "activate_this.py")
 
+if not containEnv:
+    try:
+        os.makedirs(NINJA_ENV_BIN)
+    except OSError:
+        pass # already exist!
+    try:
+        f = open(NINJA_ENV_ACTIVATE, "r")
+    except FileNotFoundError:
+        f = open(NINJA_ENV_ACTIVATE, "w")
+        f.write("# -*- coding: utf-8 -*-\n"
+                "# Miguel estubo aqui\n"
+                "print(\"Miguel estubo aqui\")")
+    f.close()
 
 exec(compile(open(NINJA_ENV_ACTIVATE).read(), NINJA_ENV_ACTIVATE, 'exec'),
      dict(__file__=NINJA_ENV_ACTIVATE))

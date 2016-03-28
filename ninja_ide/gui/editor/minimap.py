@@ -211,9 +211,9 @@ class MiniMap(QsciScintilla):
         bar.setSliderPosition(pos.y())
         self.unLock_DocumentSignal()
 
-    # def wheelEvent(self, event):
-    #     super(MiniMap, self).wheelEvent(event)
-    #     self.Document.wheelEvent(event)
+    def wheelEvent(self, event):
+        super(MiniMap, self).wheelEvent(event)
+        self.Document.wheelEvent(event)
 
 #QsciScintilla:QsciScintillaBase:QAbstractScrollArea
 class SliderArea(QFrame):
@@ -256,7 +256,7 @@ class SliderArea(QFrame):
         # height = self.minimap.lines() / 5.1 * font_size
         _view = self.minimap.Document.viewport()
         # height = _view.height() / self.minimap.Document.height() * self.minimap.height()# font_size /
-        height = _view.height() * settings.SIZE_PROPORTION * 1.2# font_size /
+        height = _view.height() * settings.SIZE_PROPORTION * 1.22#1.2# font_size /
         print("\nHeight:", height)
         self.setFixedHeight(height)
         self.setFixedWidth(self.minimap.width())
@@ -318,6 +318,6 @@ class SliderArea(QFrame):
         # self.setTextCursor(cursor)
         self.slider.move_slider((l1-l2)*QFontMetrics(self.minimap.font()).height()/4)#(p1[0]-p2[0])
 
-    # def wheelEvent(self, event):
-    #     super(SliderArea, self).wheelEvent(event)
-    #     self.minimap.wheelEvent(event)
+    def wheelEvent(self, event):
+        super(SliderArea, self).wheelEvent(event)
+        self.minimap.wheelEvent(event)

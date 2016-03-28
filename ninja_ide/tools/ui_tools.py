@@ -517,8 +517,15 @@ def install_shortcuts(obj, actions, ide):
 def get_qml_resource(qmlpath):
     path_qml = QDir.fromNativeSeparators(
         os.path.join(resources.QML_FILES, qmlpath))
-    path_qml = urlunparse(urlparse(path_qml)._replace(scheme='file'))
-    return QUrl(path_qml)
+    print("get_qml_resource:1:",path_qml, urlparse(path_qml))
+    try:
+        import virtualenv
+        path_qml = urlunparse(urlparse(path_qml)._replace(scheme='file'))
+    except ImportError:
+        # path_qml = "file:///"+path_qml
+        pass
+    print("get_qml_resource:2:",path_qml)
+    return QUrl.fromLocalFile(path_qml)
 
 
 class TabShortcuts(QShortcut):

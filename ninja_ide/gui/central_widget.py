@@ -75,7 +75,7 @@ class CentralWidget(QWidget):
         IDE.register_service('central_container', self)
 
     def install(self):
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         ui_tools.install_shortcuts(self, actions.ACTIONS_CENTRAL, ide)
 
     def show_copypaste_history_popup(self):

@@ -168,7 +168,7 @@ class EditorGeneral(QWidget):
         self._preferences.savePreferences.connect(self.save)
 
     def _open_schemes_manager(self):
-        ninjaide = IDE.get_service("ide")
+        ninjaide = IDE.getInstance()
         ninjaide.show_schemes()
         # refresh schemes
 

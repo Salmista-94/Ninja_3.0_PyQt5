@@ -204,7 +204,7 @@ class TreeSymbolsWidget(QDialog):
             parent = self.tree
 
         if 'attributes' in symbols:
-            print("\nsymbols['attributes']", symbols['attributes'])
+            # print("\nsymbols['attributes']", symbols['attributes'])
             globalAttribute = ItemTree(parent, [translations.TR_ATTRIBUTES])
             globalAttribute.isClickable = False
             globalAttribute.isAttribute = True

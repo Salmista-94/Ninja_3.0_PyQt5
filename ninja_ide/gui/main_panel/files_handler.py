@@ -25,10 +25,13 @@ from ninja_ide.tools.logger import NinjaLogger
 logger = NinjaLogger(__name__)
 
 from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QTimer
 from PyQt5.QtQuickWidgets import QQuickWidget
+from PyQt5.QtQuick import QQuickView
 
 from ninja_ide.gui.ide import IDE
 from ninja_ide.tools import ui_tools
@@ -38,11 +41,11 @@ from ninja_ide.tools.locator import locator
 class FilesHandler(QFrame):
 
     def __init__(self, parent=None):
-        super(FilesHandler, self).__init__(
-            None, Qt.FramelessWindowHint | Qt.Popup)
+        super(FilesHandler, self).__init__(None, Qt.Popup | Qt.FramelessWindowHint)
         self._main_container = parent
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("background:transparent;")
+        # self.setStyleSheet("background-color: rgb(25, 255, 60);")
         # Create the QML user interface.
         self.view = QQuickWidget()
         self.view.setResizeMode(QQuickWidget.SizeRootObjectToView)
@@ -61,6 +64,7 @@ class FilesHandler(QFrame):
         self._root.close.connect(self._close)
         self._root.hide.connect(self.hide)
         self._root.fuzzySearch.connect(self._fuzzy_search)
+        #QTimer.singleShot(15000, lambda: print("QTimer::", self.show()))
 
     def _open(self, path, temp, project):
         if project:
@@ -68,7 +72,7 @@ class FilesHandler(QFrame):
             self._main_container.open_file(path)
         elif temp:
             nfile = self._temp_files[temp]
-            ninjaide = IDE.get_service("ide")
+            ninjaide = IDE.getInstance()
             neditable = ninjaide.get_or_create_editable(nfile=nfile)
             self._main_container.current_widget.set_current(neditable)
         else:
@@ -82,7 +86,7 @@ class FilesHandler(QFrame):
         if temp:
             nfile = self._temp_files.get(temp, None)
         else:
-            ninjaide = IDE.get_service("ide")
+            ninjaide = IDE.getInstance()
             nfile = ninjaide.get_or_create_nfile(path)
         if nfile is not None:
             nfile.close()
@@ -104,8 +108,10 @@ class FilesHandler(QFrame):
         self._root.set_fuzzy_model(model)
 
     def _add_model(self):
-        ninjaide = IDE.get_service("ide")
+        print("_add_model:_add_model")
+        ninjaide = IDE.getInstance()
         files = ninjaide.opened_files
+        print("_add_model::", files)
         # Update model
         old = set(self._model.keys())
         new = set([nfile.file_path for nfile in files])
@@ -147,7 +153,8 @@ class FilesHandler(QFrame):
                        reverse=True)
         self._root.set_model(model)
 
-    def showEvent(self, event):
+    def _showEvent(self, event):
+        print("\nshowEvent:::showEvent")
         self._add_model()
         widget = self._main_container.get_current_editor()
         if widget is None:
@@ -158,27 +165,33 @@ class FilesHandler(QFrame):
         else:
             width = widget.width()
             height = widget.height()
+        print("\npre-resize-view:::",width, height)
         self.view.setFixedWidth(width)
         self.view.setFixedHeight(height)
 
+        print("\npre-showEvent:::")
         super(FilesHandler, self).showEvent(event)
+        print("\nshowEvent:::")
         self._root.show_animation()
         point = widget.mapToGlobal(self.view.pos())
         self.move(point.x(), point.y())
         self.view.setFocus()
         self._root.activateInput()
 
-    def hideEvent(self, event):
+    def _hideEvent(self, event):
         super(FilesHandler, self).hideEvent(event)
         self._temp_files = {}
         self._root.clear_model()
 
     def next_item(self):
+        print("next_item()", self)
+        print("continuacion::", self._root.next_item)
         if not self.isVisible():
             self.show()
         self._root.next_item()
 
     def previous_item(self):
+        print("previous_item()", self)
         if not self.isVisible():
             self.show()
         self._root.previous_item()

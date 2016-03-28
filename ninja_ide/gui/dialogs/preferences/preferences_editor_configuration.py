@@ -45,6 +45,9 @@ class EditorConfiguration(QWidget):
     def __init__(self, parent):
         super(EditorConfiguration, self).__init__()
         self._preferences, vbox = parent, QVBoxLayout(self)
+        print("\n\nEditorConfiguration", self)
+        self.destroyed['QObject*'].connect(lambda obj: print("\ndestroyed:", obj))
+
 
         # groups
         group1 = QGroupBox(translations.TR_PREFERENCES_EDITOR_CONFIG_INDENT)
@@ -65,6 +68,7 @@ class EditorConfiguration(QWidget):
         self._spin, self._checkUseTabs = QSpinBox(), QComboBox()
         self._spin.setRange(1, 10)
         self._spin.setValue(settings.INDENT)
+        self._spin.valueChanged[str].connect(lambda s: print("\n_spin:", s))
         hboxg1.addWidget(self._spin)
         self._checkUseTabs.addItems([
             translations.TR_PREFERENCES_EDITOR_CONFIG_SPACES.capitalize(),
