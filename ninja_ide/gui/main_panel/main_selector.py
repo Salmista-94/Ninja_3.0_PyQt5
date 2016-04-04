@@ -31,21 +31,24 @@ class MainSelector(QWidget):
     changeCurrent = pyqtSignal(int)
     ready = pyqtSignal()
     animationCompleted = pyqtSignal()
+    closePreviewer = pyqtSignal()
     def __init__(self, parent=None):
         super(MainSelector, self).__init__(parent)
         # Create the QML user interface.
-        view = QQuickWidget()
-        view.setResizeMode(QQuickWidget.SizeRootObjectToView)
-        view.setSource(ui_tools.get_qml_resource("MainSelector.qml"))
-        self._root = view.rootObject()
+        self.view = QQuickWidget()
+        self.view.setResizeMode(QQuickWidget.SizeRootObjectToView)
+        self.view.engine().quit.connect(self.hide)
+        self.view.setSource(ui_tools.get_qml_resource("MainSelector.qml"))
+        self._root = self.view.rootObject()
         vbox = QVBoxLayout(self)
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(0)
-        vbox.addWidget(view)
+        vbox.addWidget(self.view)
 
         self._root.open[int].connect(self.changeCurrent.emit)
         self._root.open[int].connect(self._clean_removed)
         self._root.ready.connect(self.ready.emit)
+        self._root.closePreviewer.connect(self.closePreviewer.emit)
         self._root.animationCompleted.connect(self.animationCompleted.emit)
 
     def set_model(self, model):
@@ -62,8 +65,12 @@ class MainSelector(QWidget):
     def close_selector(self):
         self._root.close_selector()
 
-    def start_animation(self):
+    def GoTo_GridPreviews(self):#start_animation
         self._root.start_animation()
+        self._root.forceActiveFocus()
+
+    def showPreview(self):
+        self._root.showPreview()
         self._root.forceActiveFocus()
 
     def open_item(self, index):
@@ -72,6 +79,7 @@ class MainSelector(QWidget):
 
     def _clean_removed(self):
         removed = sorted(self._root.get_removed(), reverse=True)
+        print("_clean_removed", removed)
         for r in removed:
             self.removeWidget.emit(r)
         self._root.clean_removed()

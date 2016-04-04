@@ -72,7 +72,7 @@ class MigrationWidget(QDialog):
 
     def install_tab(self):
         """Install the Tab on the IDE."""
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         ide.goingDown.connect(self.close)
 
     def apply_changes(self):

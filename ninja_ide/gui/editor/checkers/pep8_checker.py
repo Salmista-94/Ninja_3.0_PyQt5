@@ -45,7 +45,7 @@ class Pep8Checker(QThread):
 
         self.checker_icon = QStyle.SP_MessageBoxWarning
 
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         ninjaide.ns_preferences_editor_checkStyle.connect(lambda: remove_pep8_checker())
         self.checkerCompleted.connect(self.refresh_display)
 

@@ -24,12 +24,16 @@ import uuid
 from ninja_ide.tools.logger import NinjaLogger
 logger = NinjaLogger(__name__)
 
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QObject
 from PyQt5.QtQuickWidgets import QQuickWidget
 from PyQt5.QtQuick import QQuickView
 
@@ -38,17 +42,44 @@ from ninja_ide.tools import ui_tools
 from ninja_ide.tools.locator import locator
 
 
-class FilesHandler(QFrame):
 
+class raww(QObject):
     def __init__(self, parent=None):
-        super(FilesHandler, self).__init__(None, Qt.Popup | Qt.FramelessWindowHint)
-        self._main_container = parent
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setStyleSheet("background:transparent;")
-        # self.setStyleSheet("background-color: rgb(25, 255, 60);")
+        super(raww, self).__init__(parent)
+    @pyqtSlot()
+    def view_WinFlags(self):
+        items = QApplication.instance().topLevelWidgets()
+        print("view_WinFlags", self.parent().windowFlags(),
+            bool(self.parent().windowFlags() & Qt.WindowStaysOnTopHint),\
+            bool(self.parent().windowFlags() & Qt.WA_KeyboardFocusChange))
+        print("items", items, self.parent(), len(items),\
+            QApplication.instance().activePopupWidget(),\
+            QApplication.instance().activeModalWidget(),\
+                QApplication.instance().activeWindow(),\
+                self.parent().isVisibleTo(self.parent().comboParent),\
+                self.parent().visibleRegion() )
+
+
+#WA_AlwaysStackOnTop
+#WA_ShowWithoutActivating
+class FilesHandler(QFrame):
+#Qt.WindowStaysOnTopHint | 
+    def __init__(self, parent=None):#SplashScreen
+        super(FilesHandler, self).__init__(None, Qt.SplashScreen)#, Qt.Popup | Qt.FramelessWindowHint
+        # self.setAttribute(Qt.WA_TranslucentBackground)
+        # self.setStyleSheet("background:transparent;")
+        #self.setStyleSheet("background-color: rgb(25, 255, 60);")
+        self.setWindowState(Qt.WindowActive)# | Qt.SplashScreen
+        self.setAttribute(Qt.WA_AlwaysStackOnTop, False)
         # Create the QML user interface.
+        self._main_container = parent.container#IDE.get_service('main_container')
+        self.comboParent = parent
+        # self.rawObj = raww(self)
+
         self.view = QQuickWidget()
         self.view.setResizeMode(QQuickWidget.SizeRootObjectToView)
+        self.view.engine().quit.connect(self.hide)
+        # self.view.rootContext().setContextProperty("rawObj", self.rawObj)
         self.view.setSource(ui_tools.get_qml_resource("FilesHandler.qml"))
         self._root = self.view.rootObject()
         vbox = QVBoxLayout(self)
@@ -60,11 +91,21 @@ class FilesHandler(QFrame):
         self._temp_files = {}
         self._max_index = 0
 
+
+        # QApplication.instance().focusChanged["QWidget*", "QWidget*"].connect(\
+        #     lambda w1, w2: print("\n\n:focusChanged:", w1, w1.geometry() if w1\
+        #     else "_No es un widget",  w2, w2.geometry() if w2 else "_No es un widget"))
+
+        QApplication.instance().focusChanged["QWidget*", "QWidget*"].connect(\
+            lambda w1, w2, this=self: this.hide() if w1 == this.view else None)
+
         self._root.open.connect(self._open)
         self._root.close.connect(self._close)
         self._root.hide.connect(self.hide)
         self._root.fuzzySearch.connect(self._fuzzy_search)
         #QTimer.singleShot(15000, lambda: print("QTimer::", self.show()))
+
+        # self._root.setVisible(True)
 
     def _open(self, path, temp, project):
         if project:
@@ -111,18 +152,29 @@ class FilesHandler(QFrame):
         print("_add_model:_add_model")
         ninjaide = IDE.getInstance()
         files = ninjaide.opened_files
-        print("_add_model::", files)
+        # print("_add_model::", files, "\n", self._model.keys())
         # Update model
-        old = set(self._model.keys())
-        new = set([nfile.file_path for nfile in files])
-        result = old - new
-        for item in result:
+        # old = set(self._model.keys())
+        # now = set([nfile.file_path for nfile in files])
+        # new = old - now
+        # for item in new:
+        #     del self._model[item]
+
+        past = set(self._model.keys())
+        now = set([nfile.file_path for nfile in files])
+        old = past - now
+        # print("\n_model:past:", past)
+        # print("\n_model:now:", now)
+        # print("\n_model:old:", old)
+        for item in old:
             del self._model[item]
+
         current_editor = self._main_container.get_current_editor()
         current_path = None
         if current_editor:
             current_path = current_editor.file_path
         model = []
+        # print("len(files)", len(files), [nfile.file_path for nfile in files], "\n\n")
         for nfile in files:
             if (nfile.file_path not in self._model and
                     nfile.file_path is not None):
@@ -153,7 +205,7 @@ class FilesHandler(QFrame):
                        reverse=True)
         self._root.set_model(model)
 
-    def _showEvent(self, event):
+    def showEvent(self, event):
         print("\nshowEvent:::showEvent")
         self._add_model()
         widget = self._main_container.get_current_editor()
@@ -165,27 +217,27 @@ class FilesHandler(QFrame):
         else:
             width = widget.width()
             height = widget.height()
-        print("\npre-resize-view:::",width, height)
         self.view.setFixedWidth(width)
         self.view.setFixedHeight(height)
 
-        print("\npre-showEvent:::")
         super(FilesHandler, self).showEvent(event)
-        print("\nshowEvent:::")
         self._root.show_animation()
         point = widget.mapToGlobal(self.view.pos())
         self.move(point.x(), point.y())
         self.view.setFocus()
         self._root.activateInput()
+        # QTimer.singleShot(5000, lambda item=self._root.childItems()[0].childItems()[0]:\
+        #     print("QTimer::", item, item.hasActiveFocus(), item.scopedFocusItem(),\
+        #         item.hasFocus(), item.isFocusScope() ))
 
-    def _hideEvent(self, event):
+    def hideEvent(self, event):
+        print("\nhideEvent:::")
         super(FilesHandler, self).hideEvent(event)
         self._temp_files = {}
         self._root.clear_model()
 
     def next_item(self):
         print("next_item()", self)
-        print("continuacion::", self._root.next_item)
         if not self.isVisible():
             self.show()
         self._root.next_item()
@@ -197,6 +249,7 @@ class FilesHandler(QFrame):
         self._root.previous_item()
 
     def keyPressEvent(self, event):
+        print("keyPressEvent()", event.key(), event.key() == Qt.Key_Escape)
         if event.key() == Qt.Key_Escape:
             self.hide()
         elif (event.modifiers() == Qt.ControlModifier and
@@ -207,4 +260,18 @@ class FilesHandler(QFrame):
             self._root.previous_item()
         elif event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self._root.open_item()
+        # elif event.key() == Qt.Key_Asterisk):
+        #     print("keyPressEvent()", self,self.isVisible())
         super(FilesHandler, self).keyPressEvent(event)
+
+    def mousePressEvent(self, event):
+        if QApplication.instance().widgetAt( self.mapToGlobal(event.pos()) ) == self.comboParent:
+            event.ignore()
+            self.comboParent.hidePopup()
+            return
+        super(FilesHandler, self).mousePressEvent(event)
+
+
+    def hideEvent(self, event):
+        print("hideEvent()", event)
+        super(FilesHandler, self).hideEvent(event)

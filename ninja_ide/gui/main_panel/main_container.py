@@ -111,6 +111,7 @@ class _MainContainer(QWidget):
     allTabsClosed = pyqtSignal()
     splitEditor = pyqtSignal('QWidget*', 'QWidget*', bool)
     closeSplit = pyqtSignal(QWidget)
+    toRemovePreview = pyqtSignal()
 
 ###############################################################################
 
@@ -126,8 +127,10 @@ class _MainContainer(QWidget):
 
         self.splitter = dynamic_splitter.DynamicSplitter()
         self.setAcceptDrops(True)
-        self._files_handler = files_handler.FilesHandler(self)
+        # self._files_handler = files_handler.FilesHandler(self)
         self._add_file_folder = add_file_folder.AddFileFolderWidget(self)
+
+        self.tdir = None
 
         #documentation browser
         self.docPage = None
@@ -176,11 +179,14 @@ class _MainContainer(QWidget):
         self.selector.changeCurrent[int].connect(self._change_current_stack)
         self.selector.removeWidget[int].connect(self._remove_item_from_stack)
         self.selector.ready.connect(self._selector_ready)
+        self.selector.closePreviewer.connect(self._selector_Close)
         self.selector.animationCompleted.connect(self._selector_animation_completed)
+
         self.closeDialog.connect(self.remove_widget)
+        self.stack.widgetRemoved[int].connect(lambda i:print("widgetRemoved._-", i))
 
     def install(self):
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         ide.place_me_on("main_container", self, "central", top=True)
 
         self.combo_area = combo_editor.ComboEditor(original=True)
@@ -200,9 +206,12 @@ class _MainContainer(QWidget):
         return self.combo_area.bar.height()
 
     def add_widget(self, widget):
-        self.stack.addWidget(widget)
+        i = self.stack.addWidget(widget)
+        #if not isinstance(widget, start_page.StartPage):
+        self.tryMakeImagePreview(i)
 
     def remove_widget(self, widget):
+        #self.toRemovePreview.emit(self.stack.widget(widget))
         self.stack.removeWidget(widget)
 
     def _close_dialog(self, widget):
@@ -210,29 +219,20 @@ class _MainContainer(QWidget):
         widget.finished[int].disconnect()#lambda i: self._close_dialog(widget))
 
     def show_dialog(self, widget):
-        # print("show_dialog", self.isVisible())
+        print("\n\nshow_dialog", self.isVisible())
         self._opening_dialog = True
         widget.finished[int].connect(lambda i: self._close_dialog(widget))
-        # print("show_dialog", self.isVisible(), widget.isVisible(), self.stack.currentIndex(), self.stack.count())
         widget.setVisible(True)
-        # self.stack.addWidget(widget)
-        # print("show_dialog", self.isVisible(), widget.isVisible(), self.stack.currentIndex(), self.stack.count())
-        # self.stack.setCurrentWidget(widget)
-        # print("show_dialog", self.isVisible(), widget.isVisible(), self.stack.currentIndex(), self.stack.count())
         self.show_selector()
 
     def show_selector(self):
+        print("\n\nshow_selector::", self.selector, self.stack.currentWidget())
         if self.selector != self.stack.currentWidget():
-            tdir = QTemporaryDir()
-            if not tdir.isValid():
+            _dir = self.Successful_Tmp()
+            if not _dir:
+                print("failed!")
                 return
-            d = QDir(tdir.path())#"D:")
-            # if not d.mkdir("t34"):
-            #     return
-            # d.cd("t34")
-            if not d.mkdir("ninja-ide"):
-                return
-            d.cd("ninja-ide")
+
             # temp_dir = os.path.join(QDir.tempPath(), "ninja-ide")
             # if not os.path.exists(temp_dir):
             #     os.mkdir(temp_dir)
@@ -245,25 +245,62 @@ class _MainContainer(QWidget):
                 closable = True
                 if widget == self.splitter:
                     closable = False
-                pixmap = widget.grab(widget.rect())
                 # path = os.path.join(temp_dir, "screen%s.png" % index)
-                #ff = QFile(d, "screen%s.png" % index)
-                path = d.absolutePath()+"/screen%s.png" % index
+                #ff = QFile(_dir, "screen%s.png" % index)
+                path = _dir.absolutePath()+"/screen%s.png" % index
+                pixmap = widget.grab()#widget.rect())
                 pixmap.save(path)
                 #path = path.replace("\\", '/')
-                print("path::", path, QFileInfo(path).exists())
+                #print("path::", path, QFileInfo(path).exists())
+                path = "file:///"+path
                 if index == current:
                     self.selector.set_preview(index, path)#QUrl(path)
                     collected_data.insert(0, (index, path, closable))
                 else:
                     collected_data.append((index, path, closable))
             self.selector.set_model(collected_data)
+            print("self.selector.set_model()", collected_data)
+            self.stack.setCurrentWidget(self.selector)
         else:
-            self.selector.close_selector()
+            print("\n\n_selector_Close()")
+            self._selector_Close()
+
+    def Successful_Tmp(self):# CheckTmpDir, StateTmpDir
+        failed = lambda: not self.tdir or not self.tdir.isValid()
+        if failed():# not successfully
+            self.tdir = QTemporaryDir()
+            if failed():
+                QMessageBox.critical(self, "Unexpected Failurer", "The application has detected a problem trying to\nCreate or Access a Temporary File!.")
+                return None
+            else:
+                self.tdir.setAutoRemove(True)
+
+        d = QDir(self.tdir.path())
+        if not d.exists("ninja-ide"):
+            if not d.mkdir("ninja-ide"):
+                self.tdir = None
+        d.cd("ninja-ide")
+        return d
+
+    def tryMakeImagePreview(self, index):
+        return
+        d = self.Successful_Tmp()
+        if d:
+            self.makeImagePreview(d, index)
+
+    def makeImagePreview(self, _dir, index):
+        return
+        path = _dir.absolutePath()+"/screen%s.png" % index
+        widget = self.stack.widget(index)
+        pixmap = widget.grab()#widget.rect()
+        pixmap.save(path)
 
     def _selector_ready(self):
         self.stack.setCurrentWidget(self.selector)
-        self.selector.start_animation()
+        self.selector.GoTo_GridPreviews()
+
+    def _selector_Close(self):
+        self.stack.setCurrentWidget(self.splitter)
 
     def _selector_animation_completed(self):
         if self._opening_dialog:
@@ -276,6 +313,7 @@ class _MainContainer(QWidget):
         self.stack.setCurrentIndex(index)
 
     def _remove_item_from_stack(self, index):
+        #self.toRemovePreview.emit(index)
         widget = self.stack.takeAt(index)
         del widget
 
@@ -1014,7 +1052,7 @@ class _MainContainer(QWidget):
         """
         Returns the root directory of the 'Main Project' or the home folder
         """
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         current_project = ninjaide.get_current_project()
         if current_project:
             return current_project.path
@@ -1084,6 +1122,9 @@ class _MainContainer(QWidget):
             startPage.openFiles.connect(self.open_files_fromList)
             self.stack.insertWidget(0, startPage)
             self.stack.setCurrentIndex(0)
+
+            self.tryMakeImagePreview(0)
+            #"screen0.png"
 
     def show_python_doc(self):
         if sys.platform == 'win32':
@@ -1172,14 +1213,16 @@ class _MainContainer(QWidget):
 
     def change_tab(self):
         """Change the tab in the current TabWidget."""
+        print("\nchange_tab")
         self.stack.setCurrentWidget(self.splitter)
-        self._files_handler.next_item()
+        # self._files_handler.next_item()
         pass
 
     def change_tab_reverse(self):
         """Change the tab in the current TabWidget backwards."""
+        print("\nchange_tab_reverse")
         self.stack.setCurrentWidget(self.splitter)
-        self._files_handler.previous_item()
+        # self._files_handler.previous_item()
 
     def toggle_tabs_and_spaces(self):
         """ Toggle Show/Hide Tabs and Spaces """

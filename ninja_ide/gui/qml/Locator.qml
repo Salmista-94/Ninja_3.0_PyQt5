@@ -66,12 +66,12 @@ Rectangle {
 
     Column {
         id: filtersCol
-        anchors {
-            right: parent.right
-            top: flipableArea.top
-            bottom: parent.bottom
-            margins: 10
-        }
+        
+        anchors.right: parent.right
+        anchors.top: flipableArea.top
+        anchors.bottom: parent.bottom
+        anchors.margins: 10
+        
         width: 10
         spacing: 10
 
@@ -81,10 +81,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            
+            anchors.left: parent.left
+            anchors.right: parent.right
+            
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -98,10 +98,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            
+            anchors.left: parent.left
+            anchors.right: parent.right
+            
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -115,10 +115,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            
+            anchors.left: parent.left
+            anchors.right: parent.right
+            
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -132,10 +132,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            
+            anchors.left: parent.left
+            anchors.right: parent.right
+            
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -149,10 +149,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            
+            anchors.left: parent.left
+            anchors.right: parent.right
+            
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -166,10 +166,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            
+            anchors.left: parent.left
+            anchors.right: parent.right
+            
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -183,10 +183,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            
+            anchors.left: parent.left
+            anchors.right: parent.right
+            
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -200,10 +200,10 @@ Rectangle {
             font.pixelSize: 16
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+           
+            anchors.left: parent.left
+            anchors.right: parent.right
+           
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -218,25 +218,33 @@ Rectangle {
         radius: 2
         color: "#2d2f31"
         height: 30
-        anchors {
-            left: parent.left
-            right: filtersCol.left
-            top: parent.top
-            margins: 10
-        }
+        
+        anchors.left: parent.left
+        anchors.right: filtersCol.left
+        anchors.top: parent.top
+        anchors.margins: 10
+        
         border.color: "black"
         border.width: 1
         smooth: true
 
         TextInput {
             id: input
-            anchors {
-                fill: parent
-                margins: 4
+           
+            anchors.fill: parent
+            anchors.margins: 4
+
+                
+            Keys.onEscapePressed: {
+                print("Keys.onEscapePressed")
+                Qt.quit();
             }
+
             focus: true
             clip: true
-            color: "white"
+            color: "orange"
+            selectionColor: "red"
+            selectByMouse: true
             font.pixelSize: 18
 
             onTextChanged: {
@@ -263,14 +271,14 @@ Rectangle {
 
     Flipable {
         id: flipableArea
-        anchors {
-            left: parent.left
-            right: filtersCol.left
-            bottom: filtersText.top
-            top: inputArea.bottom
-            margins: 10
-            bottomMargin: 5
-        }
+        
+        anchors.left: parent.left
+        anchors.right: filtersCol.left
+        anchors.bottom: filtersText.top
+        anchors.top: inputArea.bottom
+        anchors.margins: 10
+        anchors.bottomMargin: 5
+        
 
         property bool flipped: false
 
@@ -300,10 +308,10 @@ Rectangle {
             model: itemsModel
             delegate: Rectangle {
                 id: listItem
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                }
+                
+                anchors.left: parent.left
+                anchors.right: parent.right
+                
                 height: 70
                 property bool current: ListView.isCurrentItem
                 color: listItem.current ? "#4182c4" : "#27292b"
@@ -321,12 +329,12 @@ Rectangle {
 
                     Text {
                         id: fileType
-                        anchors {
-                            left: parent.left
-                            right: colFileInfo.left
-                            top: parent.top
-                            bottom: parent.bottom
-                        }
+                        
+                        anchors.left: parent.left
+                        anchors.right: colFileInfo.left
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        
                         text: "<font color='" + colorType + "'>" + type + "</font>"
                         font.bold: true
                         font.pixelSize: 30
@@ -336,28 +344,28 @@ Rectangle {
 
                     Column {
                         id: colFileInfo
-                        anchors {
-                            fill: parent
-                            topMargin: 15
-                            leftMargin: 45
-                            rightMargin: 10
-                        }
+                        
+                        anchors.fill: parent
+                        anchors.topMargin: 15
+                        anchors.leftMargin: 45
+                        anchors.rightMargin: 10
+                        
                         spacing: 10
 
                         Item {
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
+                            
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            
                             height: filenameText.height
 
                             Text {
                                 id: filenameText
-                                anchors {
-                                    left: parent.left
-                                    right: lineText.left
-                                    rightMargin: 5
-                                }
+                                
+                                anchors.left: parent.left
+                                anchors.right: lineText.left
+                                anchors.rightMargin: 5
+                                
                                 text: name
                                 color: listItem.current ? "white" : "#aaaaaa"
                                 font.pixelSize: 13
@@ -366,9 +374,8 @@ Rectangle {
                             }
                             Text {
                                 id: lineText
-                                anchors {
-                                    right: parent.right
-                                }
+                                anchors.right: parent.right
+                                
                                 text: "[Line: " + (lineno + 1) + "]"
                                 visible: lineno > -1 ? true : false
                                 color: listItem.current ? "#aaaaaa" : "#555555"
@@ -378,10 +385,10 @@ Rectangle {
                         }
                         Text {
                             id: pathText
-                            anchors {
-                                left: parent.left
-                                right: parent.right
-                            }
+                            
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            
                             text: path
                             color: listItem.current ? "#aaaaaa" : "#555555"
                             font.bold: true
@@ -399,48 +406,48 @@ Rectangle {
 
             Column {
                 id: colHelp
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                }
+                
+                anchors.left: parent.left
+                anchors.right: parent.right
+                
                 spacing: 10
                 Text {
                     text: "The Code Locator provides you an easy way to access any file, class, function, attribute with a few keystrokes."
                     font.pixelSize: 14
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     color: "white"
                     wrapMode: Text.WordWrap
                 }
                 Text {
                     text: "You can just enter your search and you will see the results being filtered. You can search for any part of the word, for example:"
                     font.pixelSize: 14
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     color: "white"
                     wrapMode: Text.WordWrap
                 }
                 Text {
                     text: "If you want to obtain: EDITOR\nSearching for: ITO\nIs a valid search and it will contain EDITOR among the possible results."
                     font.pixelSize: 14
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     color: "white"
                     wrapMode: Text.WordWrap
                 }
                 Text {
                     text: "You can also use any of the filters to specialize your query and even combine them to specialize it even more."
                     font.pixelSize: 14
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     color: "white"
                     wrapMode: Text.WordWrap
                 }
@@ -450,10 +457,10 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: "< Classes"
@@ -461,10 +468,10 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: "> Functions"
@@ -472,10 +479,10 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: "- Attributes"
@@ -483,10 +490,10 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: ". Current File"
@@ -494,10 +501,10 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: "/ Opened Files"
@@ -505,10 +512,10 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: ": Line number"
@@ -516,10 +523,10 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: "! Non Python Files"
@@ -527,18 +534,18 @@ Rectangle {
                     font.pixelSize: 16
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                 }
                 Text {
                     text: "Combining them:"
                     font.pixelSize: 14
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     font.bold: true
                     color: "white"
                     wrapMode: Text.WordWrap
@@ -546,28 +553,28 @@ Rectangle {
                 Text {
                     text: "Search for files containing \"edi\" in the name, check out the classes of the current result, and check out the Functions that contains the word \"key\" in the name for the selected Class."
                     font.pixelSize: 14
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     color: "white"
                     wrapMode: Text.WordWrap
                 }
                 Image {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     source: "../../img/help/help_locator.png"//"qrc:/help/help_locator.png"//"../../img/help/help_locator.png"//"qrc:/help/locator"
                     fillMode: Image.PreserveAspectFit
                 }
                 Text {
                     text: "When you combine the filters, for example, to list the classes of an specific file, the second filter will take as input the current selected element in the results list.\nCheck out at the bottom of the screen which filters are being used, they will be highlighted."
                     font.pixelSize: 14
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
+                    
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    
                     color: "white"
                     wrapMode: Text.WordWrap
                 }
@@ -581,11 +588,11 @@ Rectangle {
         color: "#8f8f8f"
         font.pixelSize: 10
         font.bold: true
-        anchors {
-            left: parent.left
-            bottom: parent.bottom
-            margins: 5
-        }
+        
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.margins: 5
+        
     }
     Text {
         id: filtersExplainedText
@@ -593,23 +600,23 @@ Rectangle {
         color: "white"
         font.pixelSize: 10
         font.bold: true
-        anchors {
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
-            margins: 5
-        }
+        
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 5
+        
         horizontalAlignment: Text.AlignHCenter
     }
 
     Rectangle {
         id: help
-        anchors {
-            right: parent.right
-            bottom: parent.bottom
-            margins: 5
-            rightMargin: 5
-        }
+        
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 5
+        anchors.rightMargin: 5
+        
         width: 20
         height: 20
         radius: width / 2

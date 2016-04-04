@@ -97,7 +97,7 @@ class ExplorerContainer(QSplitter):
             explorer.add_tab(tab_name, obj, icon)
 
     def install(self):
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         ide.place_me_on("explorer_container", self, "lateral")
 
         for obj in ExplorerContainer.__TABS:

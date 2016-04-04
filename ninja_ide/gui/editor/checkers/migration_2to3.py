@@ -51,7 +51,7 @@ class MigrationTo3(QThread):
 
         self.checker_icon = None
 
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         ninjaide.ns_preferences_editor_showMigrationTips.connect(
             lambda: remove_migration_checker())
         self.checkerCompleted.connect(self.refresh_display)

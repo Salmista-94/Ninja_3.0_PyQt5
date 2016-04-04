@@ -54,11 +54,11 @@ Rectangle {
                 Column {
                     id: colLeft
                     spacing: 10
-                    anchors {
-                        top: parent.top
-                        left: parent.left
-                        margins: 20
-                    }
+
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.margins: 20
+                    
                     width: root.compressed ? parent.width - 40 : parent.width / 2 - 20
 
                     Image {
@@ -135,12 +135,12 @@ Rectangle {
             Column {
                 id: colRight
                 spacing: 10
-                anchors {
-                    top: parent.top
-                    right: parent.right
-                    bottom: parent.bottom
-                    margins: 20
-                }
+                
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 20
+                
                 width: parent.width / 2 - 20
                 visible: !root.compressed
 

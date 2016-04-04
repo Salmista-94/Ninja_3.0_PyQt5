@@ -122,7 +122,7 @@ class _ToolsDock(QWidget):
     def install(self):
         """Install triggered by the ide."""
         self.setup_ui()
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         ninjaide.place_me_on("tools_dock", self, "central")
         ui_tools.install_shortcuts(self, actions.ACTIONS, ninjaide)
 

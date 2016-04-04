@@ -36,6 +36,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QSizeF
 from PyQt5.QtCore import QPointF
+from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import QSize
 from PyQt5.QtNetwork import QLocalServer
 from PyQt5.QtGui import QKeySequence
@@ -402,6 +403,8 @@ class IDE(QMainWindow):
 
     #...
     ds_recentProjects = pyqtSignal(dict)
+    ns_window_size = pyqtSignal(QSize)
+    ns_window_pos = pyqtSignal(QPoint)
 
     def __init__(self, start_server=False):
         super(IDE, self).__init__()
@@ -927,7 +930,7 @@ class IDE(QMainWindow):
             getattr(self, key).emit(value)
         except TypeError as reason:
             print("\n:::", key, value, type(value))
-            # print("\n\nerrors:-:", reason)
+            print("\n\nerrors:-:", reason)
             getattr(self, key).emit()
         except AttributeError:
             print("\n:::", key, value, type(value))
@@ -1043,10 +1046,10 @@ class IDE(QMainWindow):
         else:
             self.resize(qsettings.value(
                 "window/size",
-                QSizeF(800, 600).toSize(), type='QSize'))
+                QSize(800, 600), type='QSize'))
             self.move(qsettings.value(
                 "window/pos",
-                QPointF(100, 100).toPoint(), type='QPoint'))
+                QPoint(100, 100), type='QPoint'))
 
     def _get_unsaved_files(self):
         """Return an array with the path of the unsaved files."""
@@ -1054,7 +1057,8 @@ class IDE(QMainWindow):
         files = self.opened_files
         for f in files:
             editable = self.__neditables.get(f)
-            if editable is not None and editable.editor.is_modified:
+            print("\n\neditable::", editable, getattr(editable, "editor", "-"))
+            if editable is not None and  editable.editor is not None and editable.editor.is_modified:
                 unsaved.append(f)
         return unsaved
 
@@ -1077,7 +1081,7 @@ class IDE(QMainWindow):
                 self,
                 translations.TR_IDE_CONFIRM_EXIT_TITLE,
                 (translations.TR_IDE_CONFIRM_EXIT_BODY % {'files': txt}),
-                QMessageBox.Yes, QMessageBox.No, QMessageBox.Cancel)
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.Cancel)
             if val == QMessageBox.Yes:
                 #Saves all open files
                 self._save_unsaved_files(unsaved_files)
@@ -1112,7 +1116,9 @@ class IDE(QMainWindow):
         """Open the Plugins Manager to install/uninstall plugins."""
         store = plugins_store.PluginsStore(self)
         main_container = IDE.get_service("main_container")
+        print("\nshow_plugins_store")
         if main_container:
+            print("\nshow_plugins_store::main_container")
             main_container.show_dialog(store)
         else:
             store.show()

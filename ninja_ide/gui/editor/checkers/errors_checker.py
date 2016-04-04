@@ -53,7 +53,7 @@ class ErrorsChecker(QThread):
 
         self.checker_icon = ":img/bug"
 
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         ninjaide.ns_preferences_editor_errors.connect(lambda: remove_error_checker())
         self.checkerCompleted.connect(self.refresh_display)
 

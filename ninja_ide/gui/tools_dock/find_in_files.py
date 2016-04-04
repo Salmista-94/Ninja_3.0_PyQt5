@@ -469,7 +469,7 @@ class FindInFilesWidget(QWidget):
     def open(self):
         """Open the selected file in the proper line."""
         if not self._find_widget.isVisible():
-            ninjaide = IDE.get_service('ide')
+            ninjaide = IDE.getInstance()
             actual_projects_obj = ninjaide.filesystem.get_projects()
             actual_projects = [path for path in actual_projects_obj]
             actual = ninjaide.get_current_project()
@@ -482,7 +482,7 @@ class FindInFilesWidget(QWidget):
     def find_occurrences(self, word):
         """Trigger the find occurrences mode with pre-search data."""
         self._find_widget.pattern_line_edit.setText(word)
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         editorWidget = self._main_container.get_current_editor()
         nproject = ninjaide.get_project_for_file(editorWidget.file_path)
         if nproject is None:

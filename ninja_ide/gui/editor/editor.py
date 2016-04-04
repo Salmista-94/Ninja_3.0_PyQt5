@@ -420,7 +420,7 @@ class Editor(QsciScintilla):
         return self._cursor_line, self._cursor_index
 
     def load_project_config(self):
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         project = ninjaide.get_project_for_file(self._neditable.file_path)
         if project is not None:
             self._indent = project.indentation
@@ -1098,6 +1098,10 @@ class Editor(QsciScintilla):
                 #popup_menu.addMenu(menu)
         #show menu
         popup_menu.exec_(event.globalPos())
+
+    def inputMethodEvent(self, event):
+        print("inputMethodEvent::", event.attributes())#Selection
+        super(Editor, self).inputMethodEvent(event)
 
     def mouseMoveEvent(self, event):
         position = event.pos()

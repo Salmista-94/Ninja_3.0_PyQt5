@@ -229,7 +229,7 @@ class LocateSymbolsThread(QThread):
 
     def locate_code(self):
         self._locator_db = sqlite3.connect(db_path)
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         projects = ide.filesystem.get_projects()
         if not projects:
             return

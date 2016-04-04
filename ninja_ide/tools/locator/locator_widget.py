@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import re
 
 from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
@@ -39,26 +40,31 @@ class LocatorWidget(QDialog):
 
     def __init__(self, parent=None):
         super(LocatorWidget, self).__init__(
-            parent, Qt.Dialog | Qt.FramelessWindowHint)
+            parent, Qt.SplashScreen)# | Qt.FramelessWindowHint)
         self._parent = parent
-        self.setModal(True)
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setStyleSheet("background:transparent;")
+        # self.setModal(True)
+        # self.setAttribute(Qt.WA_TranslucentBackground)
+        # self.setStyleSheet("background:transparent;")
+        self.setWindowState(Qt.WindowActive)
         self.setFixedHeight(400)
         self.setFixedWidth(500)
         # Create the QML user interface.
-        view = QQuickWidget()
-        view.setResizeMode(QQuickWidget.SizeRootObjectToView)
-        view.setSource(ui_tools.get_qml_resource("Locator.qml"))
-        self._root = view.rootObject()
+        self.view = QQuickWidget()
+        self.view.setResizeMode(QQuickWidget.SizeRootObjectToView)
+        self.view.engine().quit.connect(self.hide)
+        self.view.setSource(ui_tools.get_qml_resource("Locator.qml"))
+        self._root = self.view.rootObject()
         vbox = QVBoxLayout(self)
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(0)
-        vbox.addWidget(view)
+        vbox.addWidget(self.view)
 
         self.locate_symbols = locator.LocateSymbolsThread()
         self.locate_symbols.finished.connect(self._cleanup)
         self.locate_symbols.terminated.connect(self._cleanup)
+
+        QApplication.instance().focusChanged["QWidget*", "QWidget*"].connect(\
+            lambda w1, w2, this=self: this.hide() if w1 == this.view else None)
 
         # Locator things
         self.filterPrefix = re.compile(r'(@|<|>|-|!|\.|/|:)')
@@ -258,7 +264,7 @@ class LocatorWidget(QDialog):
     def _filter_tabs(self, filterOptions, index):
         at_start = (index == 0)
         if at_start:
-            ninjaide = IDE.get_service('ide')
+            ninjaide = IDE.getInstance()
             opened = ninjaide.filesystem.get_files()
             self.tempLocations = [
                 locator.ResultItem(

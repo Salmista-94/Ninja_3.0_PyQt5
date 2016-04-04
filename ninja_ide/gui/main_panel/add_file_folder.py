@@ -30,6 +30,8 @@ from ninja_ide.gui.ide import IDE
 from ninja_ide.core.file_handling import file_manager
 from ninja_ide.tools import ui_tools
 
+def Pomelo():
+    return None
 
 class AddFileFolderWidget(QDialog):
     """LocatorWidget class with the Logic for the QML UI"""
@@ -92,7 +94,7 @@ class AddFileFolderWidget(QDialog):
             folder = os.path.split(path)[0]
             if not os.path.exists(folder):
                 file_manager.create_folder(folder)
-            ninjaide = IDE.get_service('ide')
+            ninjaide = IDE.getInstance()
             current_nfile = ninjaide.get_or_create_nfile(path)
             current_nfile.create()
             main_container = IDE.get_service('main_container')

@@ -3,7 +3,7 @@ import QtQuick 2.5
 Rectangle {
     id: button
 
-    signal clicked
+    signal clicked()
     property alias text: btnText.text
     property bool toggledEnagled: true
     property bool toggled: false
@@ -53,36 +53,37 @@ Rectangle {
     }
 
     MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: {
-                if (button.toggledEnagled) {
-                    button.toggled = !button.toggled;
-                }
-                button.clicked();
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: {
+            if (button.toggledEnagled) {
+                button.toggled = !button.toggled;
             }
+            print("button.clicked()")
+            button.clicked();
+        }
 
-            onPressed: {
-                button.gradient = onn;
-            }
+        onPressed: {
+            button.gradient = onn;
+        }
 
-            onReleased: {
+        onReleased: {
+            button.gradient = hover;
+        }
+
+        onEntered:{
+            if (!button.toggled) {
                 button.gradient = hover;
             }
-
-            onEntered:{
-                if (!button.toggled) {
-                    button.gradient = hover;
-                }
-            }
-
-            onCanceled:{
-                button.gradient = off;
-            }
-
-            onExited: {
-                button.gradient = button.toggled ? onn : off;
-            }
         }
+
+        onCanceled:{
+            button.gradient = off;
+        }
+
+        onExited: {
+            button.gradient = button.toggled ? onn : off;
+        }
+    }
 }

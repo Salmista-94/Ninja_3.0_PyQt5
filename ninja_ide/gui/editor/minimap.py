@@ -48,7 +48,6 @@ class MiniMap(QsciScintilla):
         #self.setWordWrapMode(QTextOption.NoWrap)
         #self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         #self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setReadOnly(True)
         self.SendScintilla(QsciScintilla.SCI_SETBUFFEREDDRAW, 0)
         self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
         self.SendScintilla(QsciScintilla.SCI_SETVSCROLLBAR, 0)
@@ -78,14 +77,17 @@ class MiniMap(QsciScintilla):
         # self.viewport().resizeEvent['QResizeEvent*'].connect(\
         #     lambda e: QTimer.singleShot(200, self.changeSliderHeight))
         # self.slider.show()
+        self.setReadOnly(True)
+
+
     def changeSliderHeight(self):
         self.slider.setFixedHeight(self.viewport().geometry().height())
 
-    def disconnect_DocumentSignal(self):
-        self.Document.SCN_UPDATEUI[int].disconnect(self.update_visible_area)
-
     def connect_DocumentSignal(self):
         self.Document.SCN_UPDATEUI[int].connect(self.update_visible_area)
+
+    def disconnect_DocumentSignal(self):
+        self.Document.SCN_UPDATEUI[int].disconnect(self.update_visible_area)
 
     def Lock_DocumentSignal(self):
         self.Locked = True
@@ -214,6 +216,10 @@ class MiniMap(QsciScintilla):
     def wheelEvent(self, event):
         super(MiniMap, self).wheelEvent(event)
         self.Document.wheelEvent(event)
+
+    def inputMethodEvent(self, event):
+        print("inputMethodEvent::", event.attributes())#Selection
+        super(MiniMap, self).inputMethodEvent(event)
 
 #QsciScintilla:QsciScintillaBase:QAbstractScrollArea
 class SliderArea(QFrame):

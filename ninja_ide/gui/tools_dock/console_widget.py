@@ -117,7 +117,7 @@ class ConsoleWidget(QPlainTextEdit):
         self._proc.error['QProcess::ProcessError'].connect(self.process_error)
         self._add_system_path_for_frozen()
 
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         ninjaide.ns_preferences_editor_font.connect(self.set_font)
 
     def _add_system_path_for_frozen(self):

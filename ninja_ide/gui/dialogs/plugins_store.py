@@ -18,8 +18,10 @@
 import collections
 import random
 
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QColor
 from PyQt5.QtQuickWidgets import QQuickWidget
 from PyQt5.QtCore import Qt
@@ -33,11 +35,12 @@ from ninja_ide.core.encapsulated_env import nenvironment
 class PluginsStore(QDialog):
     processCompleted = pyqtSignal('QObject*')
     def __init__(self, parent=None):
-        super(PluginsStore, self).__init__(parent, Qt.Dialog)
+        super(PluginsStore, self).__init__(parent, Qt.Popup)#Qt.Tool
         self.setWindowTitle(translations.TR_MANAGE_PLUGINS)
         vbox = QVBoxLayout(self)
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(0)
+        #self.setWindowState(Qt.WindowActive)
         self.view = QQuickWidget()
         self.view.setMinimumWidth(800)
         self.view.setMinimumHeight(600)
@@ -57,8 +60,11 @@ class PluginsStore(QDialog):
         self._search = []
         self.status = None
 
+        # QApplication.instance().focusChanged["QWidget*", "QWidget*"].connect(\
+        #     lambda w1, w2, this=self: this.hide() if w1 == this.view else None)
+
         self.root.loadPluginsGrid.connect(self._load_by_name)
-        self.root.close.connect(self.close)
+        self.root.close.connect(lambda: print("self.close", self.close()))
         self.root.showPluginDetails[int].connect(self.show_plugin_details)
         self.root.loadTagsGrid.connect(self._load_tags_grid)
         self.root.loadAuthorGrid.connect(self._load_author_grid)

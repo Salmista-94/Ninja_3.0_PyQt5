@@ -109,7 +109,7 @@ class _StatusBar(QWidget):
     def install(self):
         """Install StatusBar as a service."""
         self.hide()
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         self._codeLocator = locator_widget.LocatorWidget(ide)
 
         ui_tools.install_shortcuts(self, actions.ACTIONS_STATUS, ide)
@@ -241,7 +241,7 @@ class SearchWidget(QWidget):
     def install(self):
         """Install SearchWidget as a service and its shortcuts."""
         self.hide()
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
 
         ui_tools.install_shortcuts(self, actions.ACTIONS_STATUS_SEARCH, ide)
 

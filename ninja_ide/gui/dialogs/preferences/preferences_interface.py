@@ -300,7 +300,7 @@ class Interface(QWidget):
         qsettings.setValue('preferences/interface/language', lang)
         lang = lang + '.qm'
         settings.LANGUAGE = os.path.join(resources.LANGS, lang)
-        #ide = IDE.get_service('ide')
+        #ide = IDE.getInstance()
         #if ide:
             #ide.reload_toolbar()
 

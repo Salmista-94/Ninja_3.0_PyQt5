@@ -106,7 +106,7 @@ class ProjectTreeColumn(QDialog):
 
 
     def install_tab(self):
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         ui_tools.install_shortcuts(self, actions.PROJECTS_TREE_ACTIONS, ide)
 
         ide.goingDown.connect(self.close)
@@ -224,7 +224,7 @@ class ProjectTreeColumn(QDialog):
         self._combo_project.removeItem(index)
         index = self._combo_project.currentIndex()
         self._projects_area.setCurrentIndex(index)
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         ninjaide.filesystem.close_project(widget.project.path)
         widget.deleteLater()
         if len(self.projects) > 1:
@@ -599,7 +599,7 @@ class TreeProjectsWidget(QTreeView):
                 main_container.close_deleted_file(path)
             #FIXME: Manage the deletion signal instead of main container
             #fiddling here
-            ide_srv = IDE.get_service('ide')
+            ide_srv = IDE.getInstance()
             current_nfile = ide_srv.get_or_create_nfile(path)
             current_nfile.delete()
 

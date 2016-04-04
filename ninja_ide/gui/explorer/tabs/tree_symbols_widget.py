@@ -71,7 +71,7 @@ class TreeSymbolsWidget(QDialog):
 
     def install_tab(self):
         """Connect signals for goingdown"""
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         ide.goingDown.connect(self.close)
 
     def _menu_context_tree(self, point):

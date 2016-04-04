@@ -95,7 +95,7 @@ class ErrorsWidget(QDialog):
         ExplorerContainer.register_tab(translations.TR_TAB_ERRORS, self)
 
     def install_tab(self):
-        ide = IDE.get_service('ide')
+        ide = IDE.getInstance()
         ide.goingDown.connect(self.close)
 
     def _turn_on_off_lint(self):

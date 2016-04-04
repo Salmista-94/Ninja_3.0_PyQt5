@@ -48,6 +48,7 @@ from ninja_ide import translations
 from ninja_ide.extensions import handlers
 from ninja_ide.core import settings
 from ninja_ide.gui.ide import IDE
+from ninja_ide.gui.main_panel import files_handler
 
 
 try:
@@ -122,7 +123,7 @@ class ComboEditor(QDialog):
 
     def _file_opened_by_main(self, path):
         index = self.stacked.currentIndex()
-        ninjaide = IDE.get_service('ide')
+        ninjaide = IDE.getInstance()
         editable = ninjaide.get_or_create_editable(path)
         print("_file_opened_by_main", editable)
         self.add_editor(editable)
@@ -409,7 +410,7 @@ class ActionBar(QFrame):
         self.lbl_checks.setVisible(False)
         hbox.addWidget(self.lbl_checks)
 
-        self.combo = ComboFiles()
+        self.combo = ComboFiles()#self)
         self.combo.setIconSize(QSize(16, 16))
         #model = QStandardItemModel()
         #self.combo.setModel(model)
@@ -645,13 +646,58 @@ class ActionBar(QFrame):
 
 class ComboFiles(QComboBox):
     showComboSelector = pyqtSignal()
-    def __init__(self):
+    def __init__(self, parent=None):
         super(ComboFiles, self).__init__()
-        self.highlighted[int].connect(lambda i: print("highlighted", i))
+        self.block = False
+        self.__parent = parent if parent else IDE.get_service("main_container")
+        self._files_handler = files_handler.FilesHandler(self)
+    #     self.highlighted[int].connect(lambda i: print("highlighted", i))
+    #     QTimer.singleShot(5000, self.test)
+
+    # def test(self):
+    #     print("_files_handler", self._files_handler.show())
 
     def showPopup(self):
-        super(ComboFiles, self).showPopup()
-        self.showComboSelector.emit()
+        print("showPopup", self._files_handler.isVisible())
+        #super(ComboFiles, self).showPopup()# agregado!
+        if not self._files_handler.isVisible() and not self.block:
+            self.showComboSelector.emit()
+            self._files_handler.show()
+        else:
+            self.block = False
+            self._files_handler.hide()
+
+    def hidePopup(self):
+        # self.block = True
+        self._files_handler.hide()
+
+    @property
+    def container(self):
+        return self.__parent
+
+
+    def keyPressEvent(self, event):
+        print("event.key()", event.key())
+        if event.key() == Qt.Key_Slash:
+            items = QApplication.instance().topLevelWidgets()
+            print("keyPressEvent()", self._files_handler, self._files_handler.isVisible(),\
+                self._files_handler.view.isVisible(), self._files_handler.windowFlags(),\
+                bool(self._files_handler.windowFlags() & Qt.WindowStaysOnTopHint) ) 
+            print("items", items, self.parent(), len(items),\
+                QApplication.instance().activePopupWidget(),\
+                QApplication.instance().activeModalWidget(),\
+                QApplication.instance().activeWindow(),\
+                self._files_handler.view.isVisibleTo(self),\
+                self._files_handler.visibleRegion() )
+        else:
+            super(ComboFiles, self).keyPressEvent(event)
+
+    # def mousePressEvent(self, event):
+    #     print("\nmousePressEvent")
+    #     if self._files_handler.isVisible():
+    #         event.ignore()
+    #         return
+    #     super(ComboFiles, self).mousePressEvent(event)
         
 
 class CodeNavigator(QWidget):
